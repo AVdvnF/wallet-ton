@@ -71,5 +71,8 @@ async def init_db():
     ВАЖНО: В production используй Alembic миграции!
     Этот метод только для быстрого старта в development.
     """
+    # ВАЖНО: Импортируем модели, чтобы они зарегистрировались в Base.metadata
+    from app.models import User, Wallet, Balance, Transaction, LedgerEntry
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
