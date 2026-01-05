@@ -7,6 +7,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.db.database import init_db
 import structlog
 
 from app.config import get_settings
@@ -35,9 +36,6 @@ logger = structlog.get_logger()
 async def lifespan(app: FastAPI):
     """
     Lifecycle менеджер приложения.
-    
-    Выполняется при старте и остановке сервера.
-    Здесь инициализируем и закрываем подключения к БД, Redis, TON.
     """
     settings = get_settings()
     
@@ -48,20 +46,14 @@ async def lifespan(app: FastAPI):
         debug=settings.debug
     )
     
-    # TODO: Инициализация подключений
-    # - Database connection pool
-    # - Redis connection
-    # - TON client
+    # Инициализация БД (создание таблиц)
+    await init_db()
+    logger.info("Database initialized")
     
     yield  # Приложение работает
     
     # === SHUTDOWN ===
     logger.info("Shutting down application")
-    
-    # TODO: Закрытие подключений
-    # - Close database pool
-    # - Close Redis
-    # - Close TON client
 
 
 def create_app() -> FastAPI:
